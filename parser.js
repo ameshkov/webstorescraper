@@ -61,7 +61,7 @@ let parseCategory = async function (category) {
                     category: item[10],
                     usersCount: parseInt(item[23].replace(/[^0-9]/g, '')),
                     rating: item[12],
-                    ratingsCount: item[13],
+                    ratingsCount: item[22],
                     analyticsId: item[83],
                     website: item[81],
                     inApp: item[30]
