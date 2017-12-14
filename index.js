@@ -30,7 +30,9 @@ const extensionsMetaFilePath = "extensions.json";
  * @param category Category name
  */
 let parseCategory = async function (category) {
-    const browser = await puppeteer.launch();
+    // necessary for debian
+    let args = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+    const browser = await puppeteer.launch(args);
     let url = chromeStoreUrl + category;
 
     // Open the category page
