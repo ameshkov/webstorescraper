@@ -21,7 +21,8 @@ const itemRequestPath = "/webstore/ajax/item";
 const maxLimit = 10000;
 const testSelectorTimeout = 5000;
 const testSelectorFormat = ".webstore-test-wall-tile[index=\"%d\"]";
-const outFilePath = "out.json";
+const dataDirectoryPath = "data";
+const extensionsMetaFilePath = "extensions.json";
 
 /**
  * Parses a given category
@@ -58,7 +59,12 @@ let parseCategory = async function (category) {
                     author: item[2],
                     description: item[6],
                     category: item[10],
-                    usersCount: parseInt(item[23].replace(/[^0-9]/, ''))
+                    usersCount: parseInt(item[23].replace(/[^0-9]/, '')),
+                    rating: item[12],
+                    ratingsCount: item[13],
+                    analyticsId: item[83],
+                    website: item[81],
+                    inApp: item[30]
                 };
                 extensions.push(extensionData);
             }
@@ -96,8 +102,13 @@ let parse = async function () {
         extensions = extensions.concat(categoryExtensions);
     }
 
-    console.log("Total number of extensions retrieved is %d", extensions.length);
-    fs.writeFileSync(outFilePath, JSON.stringify(extensions, 0, 4));
+    console.log("Total number of extensions retrieved is %d", extensions.length);    
+
+    if (!fs.existsSync(dataDirectoryPath)) {
+        fs.mkdirSync(dataDirectoryPath);
+    }
+
+    fs.writeFileSync(dataDirectoryPath + "/" + extensionsMetaFilePath, JSON.stringify(extensions, 0, 4));
 };
 
 parse();
