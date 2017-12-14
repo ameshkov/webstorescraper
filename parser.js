@@ -59,7 +59,7 @@ let parseCategory = async function (category) {
                     author: item[2],
                     description: item[6],
                     category: item[10],
-                    usersCount: parseInt(item[23].replace(/[^0-9]/, '')),
+                    usersCount: parseInt(item[23].replace(/[^0-9]/g, '')),
                     rating: item[12],
                     ratingsCount: item[13],
                     analyticsId: item[83],
