@@ -4,21 +4,21 @@ const fs = require('fs');
 
 const chromeStoreUrl = "https://chrome.google.com/webstore/category/ext/";
 const categories = [
-    // "22-accessibility",
-    // "10-blogging",
+    "22-accessibility",
+    "10-blogging",
     "15-by-google",
-    // "11-web-development",
-    // "14-fun",
-    // "6-news",
-    // "28-photos",
-    // "7-productivity",
-    // "38-search-tools",
-    // "12-shopping",
-    // "1-communication",
-    // "13-sports"
+    "11-web-development",
+    "14-fun",
+    "6-news",
+    "28-photos",
+    "7-productivity",
+    "38-search-tools",
+    "12-shopping",
+    "1-communication",
+    "13-sports"
 ];
 const itemRequestPath = "/webstore/ajax/item";
-const maxLimit = 20000;
+const maxLimit = 30000;
 const testSelectorTimeout = 5000;
 const testSelectorFormat = ".webstore-test-wall-tile[index=\"%d\"]";
 
