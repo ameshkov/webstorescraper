@@ -31,7 +31,7 @@ const extensionsMetaFilePath = "extensions.json";
  */
 let parseCategory = async function (category) {
     const browser = await puppeteer.launch();
-    var url = chromeStoreUrl + category;
+    let url = chromeStoreUrl + category;
 
     // Open the category page
     const page = await browser.newPage();
