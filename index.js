@@ -35,12 +35,15 @@ function mkdirs(folderPath, mode) {
  * Prints usage
  */
 let printUsage = function () {
-    console.log("Usage: node index.js command");
+    console.log("Usage: node index.js command [dbProperties]");
     console.log("");
     console.log("command can be:");
     console.log("meta - retrieves extensions meta data and saves to 'data/extensions.json'");
     console.log("download - downloads all the extensions in 'data/extensions.json' to data/extensions/*");
     console.log("database - fills a postgresql database with parsed & downloaded data");
+    console.log("");
+    console.log("for database command you can also pass database properties");
+    console.log("dbProperties=host port database user password");
 }
 
 let args = process.argv.slice(2);
@@ -59,7 +62,20 @@ if (command === "meta") {
     let minUsers = args[1] ? parseInt(args[1]) : 10000;
     downloader.downloadExtensions(extensionsMetaPath, extensionsDirectory, minUsers);
 } else if (command === "database") {
-    db.fillExtensionsTables(extensionsMetaPath, extensionsDirectory);
+
+    let dbProperties;
+
+    if (args.length == 6) {
+        dbProperties = {
+            user: args[4],
+            host: args[1],
+            database: args[3],
+            password: args[5],
+            port: args[2],
+        }
+    }
+
+    db.fillExtensionsTables(extensionsMetaPath, extensionsDirectory, dbProperties);
 } else {
     printUsage();
 }

@@ -14,7 +14,7 @@ const insertFileSql = "INSERT INTO extensions.extensions_files (extension_id, fi
  * @param {*} extension Extension meta data
  * @param {*} extensionsDirectory Extensions directory
  */
-let insertExtensionFiles = async function (extension, extensionsDirectory) {
+let insertExtensionFiles = async function (extension, extensionsDirectory, dbProperties) {
     console.log("Inserting files of %s (%s)", extension.name, extension.id);
 
     let filePath = extensionsDirectory + "/" + extension.id + ".crx";
@@ -24,7 +24,7 @@ let insertExtensionFiles = async function (extension, extensionsDirectory) {
     }
 
     // Connecting to the database
-    let client = new Client();
+    let client = new Client(dbProperties);
     try {
         await client.connect();
 
@@ -62,12 +62,12 @@ let insertExtensionFiles = async function (extension, extensionsDirectory) {
  * 
  * @param {*} extension Extension meta data
  */
-let insertExtensionData = async function (extension) {
+let insertExtensionData = async function (extension, dbProperties) {
 
     console.log("Inserting data of %s (%s)", extension.name, extension.id);
 
     // Connecting to the database
-    let client = new Client();
+    let client = new Client(dbProperties);
     try {
         await client.connect();
 
@@ -98,7 +98,7 @@ let insertExtensionData = async function (extension) {
  * @param {*} extensionsMetaFilePath Path to the file with extensions meta data
  * @param {*} extensionsDirectory Path to the directory with extensions CRX files
  */
-let fillExtensionsTables = async function (extensionsMetaFilePath, extensionsDirectory) {
+let fillExtensionsTables = async function (extensionsMetaFilePath, extensionsDirectory, dbProperties) {
     try {
         console.log("Filling extensions tables with data");
         let extensions = JSON.parse(fs.readFileSync(extensionsMetaFilePath));
@@ -106,8 +106,8 @@ let fillExtensionsTables = async function (extensionsMetaFilePath, extensionsDir
         for (let i = 0; i < extensions.length && i < 10; i++) {
 
             let extension = extensions[i];
-            insertExtensionData(extension);
-            insertExtensionFiles(extension, extensionsDirectory);
+            insertExtensionData(extension, dbProperties);
+            insertExtensionFiles(extension, extensionsDirectory, dbProperties);
         }
     } catch (ex) {
         console.log(ex);
