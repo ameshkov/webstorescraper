@@ -106,8 +106,8 @@ let fillExtensionsTables = async function (extensionsMetaFilePath, extensionsDir
         for (let i = 0; i < extensions.length; i++) {
 
             let extension = extensions[i];
-            insertExtensionData(extension, dbProperties);
-            insertExtensionFiles(extension, extensionsDirectory, dbProperties);
+            await insertExtensionData(extension, dbProperties);
+            await insertExtensionFiles(extension, extensionsDirectory, dbProperties);
         }
     } catch (ex) {
         console.log(ex);
