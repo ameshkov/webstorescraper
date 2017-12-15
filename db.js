@@ -103,7 +103,7 @@ let fillExtensionsTables = async function (extensionsMetaFilePath, extensionsDir
         console.log("Filling extensions tables with data");
         let extensions = JSON.parse(fs.readFileSync(extensionsMetaFilePath));
 
-        for (let i = 0; i < extensions.length && i < 10; i++) {
+        for (let i = 0; i < extensions.length; i++) {
 
             let extension = extensions[i];
             insertExtensionData(extension, dbProperties);
