@@ -37,7 +37,7 @@ let downloadExtensions = function (extensionsMetaFilePath, outputDirectory, user
     for (let i = 0; i < extensions.length; i++) {
 
         let extension = extensions[i];
-        if (extension.usersCount > usersCountLimit) {
+        if (extension.usersCount >= usersCountLimit) {
             console.log("Downloading %s (%s)", extension.name, extension.id);
             download(extension.id, outputDirectory);
             downloadedCount++;

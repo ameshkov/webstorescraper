@@ -11,8 +11,10 @@
   "dependencies": {
     "csv2": "^0.1.1",
     "fs": "^0.0.1-security",
+    "pg": "^7.4.0",
     "puppeteer": "^0.11.0",
     "request": "^2.83.0",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "zip-local": "^0.3.4"
   }
 }

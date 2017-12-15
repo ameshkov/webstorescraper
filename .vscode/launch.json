@@ -12,7 +12,7 @@
             "args": [
                 "meta"
             ]
-        },        
+        },
         {
             "type": "node",
             "request": "launch",
@@ -20,8 +20,18 @@
             "program": "${workspaceFolder}/index.js",
             "args": [
                 "download",
-                "100000"
+                "10000000"
             ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Database",
+            "program": "${workspaceFolder}/index.js",
+            "args": [
+                "database"
+            ],
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

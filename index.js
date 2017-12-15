@@ -1,5 +1,6 @@
 const parser = require('./parser');
 const downloader = require('./downloader');
+const db = require('./db');
 const fs = require('fs');
 const path = require('path');
 
@@ -39,6 +40,7 @@ let printUsage = function () {
     console.log("command can be:");
     console.log("meta - retrieves extensions meta data and saves to 'data/extensions.json'");
     console.log("download - downloads all the extensions in 'data/extensions.json' to data/extensions/*");
+    console.log("database - fills a postgresql database with parsed & downloaded data");
 }
 
 let args = process.argv.slice(2);
@@ -56,6 +58,8 @@ if (command === "meta") {
     mkdirs(extensionsDirectory);
     let minUsers = args[1] ? parseInt(args[1]) : 10000;
     downloader.downloadExtensions(extensionsMetaPath, extensionsDirectory, minUsers);
+} else if (command === "database") {
+    db.fillExtensionsTables(extensionsMetaPath, extensionsDirectory);
 } else {
     printUsage();
 }
