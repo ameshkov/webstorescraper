@@ -1,3 +1,4 @@
+/* Init */
 const parser = require('./parser');
 const downloader = require('./downloader');
 const db = require('./db');
