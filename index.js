@@ -1,4 +1,3 @@
-/* Init */
 const parser = require('./parser');
 const downloader = require('./downloader');
 const db = require('./db');
@@ -36,14 +35,18 @@ function mkdirs(folderPath, mode) {
  * Prints usage
  */
 let printUsage = function () {
-    console.log("Usage: node index.js command [dbProperties]");
+    console.log("Usage: node index.js command [limit] [dbProperties]");
     console.log("");
     console.log("command can be:");
     console.log("meta - retrieves extensions meta data and saves to 'data/extensions.json'");
     console.log("download - downloads all the extensions in 'data/extensions.json' to data/extensions/*");
     console.log("database - fills a postgresql database with parsed & downloaded data");
     console.log("");
-    console.log("for database command you can also pass database properties");
+    console.log("For the `download` command you can also pass an optional `limit` parameter.");
+    console.log("It controls the minimum downloads extension should have in order to be downloaded.");
+    console.log("Default value is 10000.");
+    console.log("");
+    console.log("For the `database` command you can also pass database properties");
     console.log("dbProperties=host port database user password");
 }
 
