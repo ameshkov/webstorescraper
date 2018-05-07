@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const util = require('util');
 const fs = require('fs');
+const delay = require('delay');
 
 const chromeStoreUrl = "https://chrome.google.com/webstore/category/ext/";
 const categories = [
@@ -19,7 +20,7 @@ const categories = [
 ];
 const itemRequestPath = "/webstore/ajax/item";
 const maxLimit = 30000;
-const testSelectorTimeout = 5000;
+const testSelectorTimeout = 10000;
 const testSelectorFormat = ".webstore-test-wall-tile[index=\"%d\"]";
 
 /**
@@ -79,6 +80,7 @@ let parseCategory = async function (category) {
             let testSelector = util.format(testSelectorFormat, i + 1);
             try {
                 await page.waitForSelector(testSelector, { timeout: testSelectorTimeout });
+                await delay(1000);
             } catch (ex) {
                 // Ignore, that's just timeout
                 break;

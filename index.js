@@ -56,7 +56,6 @@ if (args.length < 1) {
     return;
 }
 
-
 let command = args[0];
 if (command === "meta") {
     mkdirs(dataDirectoryPath);
