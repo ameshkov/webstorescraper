@@ -7,6 +7,12 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Analyse",
+            "program": "${workspaceFolder}/analyse.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Parse",
             "program": "${workspaceFolder}/index.js",
             "args": [
