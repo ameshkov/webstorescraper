@@ -56,6 +56,13 @@ let unzipExtension = async function (extensionsDirectory, id) {
     deleteFolderRecursive(to + '/_metadata');
 }
 
+/**
+ * Patches the background page and adds our interceptor there
+ * 
+ * @param {string} id extension ID
+ * @param {string} extensionPath path to the unpacked extension
+ * @param {*} bgPage path to the background page file
+ */
 let patchBackgroundHtml = function (id, extensionPath, bgPage) {
     // Parse HTML and add our script t
     let bgHtml = fs.readFileSync(extensionPath + "/" + bgPage).toString();
@@ -68,7 +75,7 @@ let patchBackgroundHtml = function (id, extensionPath, bgPage) {
         console.error("Wrong bg page: " + id);
     }
 
-    bgHtml = parts[0] + "<script src='" + ANALYSE_INTERCEPTOR + '"></script><script' + parts[1];
+    bgHtml = parts[0] + "<script src='" + ANALYSE_INTERCEPTOR + "'></script>\n<script" + parts[1];
     fs.writeFileSync(extensionPath + "/" + bgPage, bgHtml);
 }
 
@@ -204,7 +211,7 @@ let analyzeExtensions = async function (extensionsDirectory, outputPath) {
 
     fs.writeFileSync(outputPath, JSON.stringify(requests, 0, 4));
 
-    analyzeExtension(extensionsDirectory, "mlikepnkghhlnkgeejmlkfeheihlehne");
+    // analyzeExtension(extensionsDirectory, "cjpalhdlnbpafiamejdnhcphjbkeiagm");
     console.log("Finished analyzing extensions. Count=" + requests.length);
 }
 
