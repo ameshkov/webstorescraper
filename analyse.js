@@ -125,6 +125,9 @@ let patchManifest = function (extensionsDirectory, id) {
         manifest.permissions.unshift("<all_urls>");
     }
 
+    // Allow all
+    manifest.content_security_policy = "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';";
+
     // Update the manifest
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, 0, 4));
 }
@@ -200,6 +203,8 @@ let analyzeExtensions = async function (extensionsDirectory, outputPath) {
     }
 
     fs.writeFileSync(outputPath, JSON.stringify(requests, 0, 4));
+
+    analyzeExtension(extensionsDirectory, "mlikepnkghhlnkgeejmlkfeheihlehne");
     console.log("Finished analyzing extensions. Count=" + requests.length);
 }
 

@@ -2,6 +2,7 @@
  * Background script that will be injected into the extension manifest
  * and which will intercept all network requests using chrome.webRequest API
  */
+const tabs = {};
 chrome.webRequest.onBeforeRequest.addListener(
     function (details) {
         if (details.url.indexOf('http://localhost:3000') === 0) {
@@ -11,7 +12,7 @@ chrome.webRequest.onBeforeRequest.addListener(
         let requestDetails = {
             method: details.method,
             url: details.url,
-            originUrl: details.originUrl,
+            originUrl: tabs[details.tabId],
             type: details.type
         };
 
@@ -22,6 +23,10 @@ chrome.webRequest.onBeforeRequest.addListener(
         fetch('http://localhost:3000/intercept?details=' + escape(JSON.stringify(requestDetails))).then(() => {
             console.log("Reported " + requestDetails.url);
         });
+
+        if (details.type === "main_frame") {
+            tabs[details.tabId] = details.url;
+        }        
 
         return { cancel: false };
     },
