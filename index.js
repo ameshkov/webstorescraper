@@ -1,6 +1,7 @@
 const parser = require('./parser');
 const downloader = require('./downloader');
 const db = require('./db');
+const analyse = require('./analyse');
 const fs = require('fs');
 const path = require('path');
 
@@ -9,6 +10,7 @@ const extensionsMetaFilePath = "extensions.json";
 const downloadDirectory = "extensions";
 const extensionsMetaPath = dataDirectoryPath + "/" + extensionsMetaFilePath;
 const extensionsDirectory = dataDirectoryPath + "/" + downloadDirectory;
+const extensionsRequestPath = dataDirectoryPath + "/requests.json";
 
 /**
  * Creates directory and parent directories (if necessary)
@@ -40,6 +42,7 @@ let printUsage = function () {
     console.log("command can be:");
     console.log("meta - retrieves extensions meta data and saves to 'data/extensions.json'");
     console.log("download - downloads all the extensions in 'data/extensions.json' to data/extensions/*");
+    console.log("analyse - analyse the downloaded extensions");
     console.log("database - fills a postgresql database with parsed & downloaded data");
     console.log("");
     console.log("For the `download` command you can also pass an optional `limit` parameter.");
@@ -79,6 +82,8 @@ if (command === "meta") {
     }
 
     db.fillExtensionsTables(extensionsMetaPath, extensionsDirectory, dbProperties);
+} else if (command === "analyse") {
+    analyse(extensionsDirectory, extensionsRequestPath);
 } else {
     printUsage();
 }
