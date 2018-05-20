@@ -7,12 +7,58 @@ const { Client } = require('pg');
 const insertMetaSql = "INSERT INTO extensions.extensions (id, name, author, description, category, usersCount, rating, ratingsCount, analyticsId, website, inApp) "
     + " VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);"
 const insertFileSql = "INSERT INTO extensions.extensions_files (extension_id, file_path, file_content) VALUES ($1, $2, $3);";
+const insertRequestSql = "INSERT INTO extensions.requests (extension_id, method, url, origin_url, type, request_body) VALUES ($1, $2, $3, $4, $5, $6);";
+
+/**
+ * Insert extension requests data to the requests table
+ * 
+ * @param {*} requestsPath requests path
+ * @param {*} dbProperties  db properties
+ */
+let insertRequests = async function (requestsPath, dbProperties) {
+    console.log("Inserting extension requests");
+
+    if (!fs.existsSync(requestsPath)) {
+        console.log("Requests file does not exist");
+        return;
+    }
+
+    let requests = JSON.parse(fs.readFileSync(requestsPath));
+
+    // Connecting to the database
+    let client = new Client(dbProperties);
+    try {
+        await client.connect();
+
+        for (let i = 0; i < requests.length; i++) {
+            let extensionRequests = requests[i];
+
+            for (let j = 0; j < extensionRequests.requests.length; j++) {
+                let request = extensionRequests.requests[j];
+
+                await client.query(insertRequestSql, [
+                    extensionRequests.id,
+                    request.method,
+                    request.url,
+                    request.originUrl,
+                    request.type,
+                    request.body
+                ]);
+            }
+        }
+    } catch (ex) {
+        console.error(ex);
+    } finally {
+        await client.end();
+    }
+}
 
 /**
  * Insert extension files content to the extensions_files table
  * 
  * @param {*} extension Extension meta data
  * @param {*} extensionsDirectory Extensions directory
+ * @param {*} dbProperties  db properties
  */
 let insertExtensionFiles = async function (extension, extensionsDirectory, dbProperties) {
     console.log("Inserting files of %s (%s)", extension.name, extension.id);
@@ -97,8 +143,10 @@ let insertExtensionData = async function (extension, dbProperties) {
  * 
  * @param {*} extensionsMetaFilePath Path to the file with extensions meta data
  * @param {*} extensionsDirectory Path to the directory with extensions CRX files
+ * @param {*} requestsPath Extensions requests path
+ * @param {*} dbProperties DB properties
  */
-let fillExtensionsTables = async function (extensionsMetaFilePath, extensionsDirectory, dbProperties) {
+let fillExtensionsTables = async function (extensionsMetaFilePath, extensionsDirectory, requestsPath, dbProperties) {
     try {
         console.log("Filling extensions tables with data");
         let extensions = JSON.parse(fs.readFileSync(extensionsMetaFilePath));
@@ -109,6 +157,8 @@ let fillExtensionsTables = async function (extensionsMetaFilePath, extensionsDir
             await insertExtensionData(extension, dbProperties);
             await insertExtensionFiles(extension, extensionsDirectory, dbProperties);
         }
+
+        await insertRequests(requestsPath, dbProperties);
     } catch (ex) {
         console.log(ex);
     }

@@ -21,3 +21,12 @@ CREATE TABLE extensions.extensions_files (
   file_path TEXT,
   file_content TEXT
 );
+
+CREATE TABLE extensions.requests (
+  extension_id TEXT,
+  method TEXT,
+  url TEXT,
+  origin_url TEXT,
+  type TEXT,
+  request_body TEXT
+);

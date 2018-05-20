@@ -21,12 +21,12 @@ class Interceptor {
         this.app.get('/intercept', (req, res) => {
             let details = JSON.parse(req.query.details);
             this.requests.push(details);
-            res.send(200);
+            res.sendStatus(200);
         });
 
         this.app.use(function(req, res){
             console.error("Error 404: " + req.url);
-            res.send(404);
+            res.sendStatus(404);
         });
     }
 

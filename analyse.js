@@ -148,8 +148,13 @@ let patchManifest = function (extensionsDirectory, id) {
 let analyzeExtension = async function (extensionsDirectory, id) {
 
     console.log("Start analyzing extension: " + id);
-    await unzipExtension(extensionsDirectory, id);
-    patchManifest(extensionsDirectory, id);
+    try {
+        await unzipExtension(extensionsDirectory, id);
+        patchManifest(extensionsDirectory, id);
+    } catch (ex) {
+        console.error("Cannot patch the extension due to " + ex);
+        return null;
+    }
 
     let extensionPath = path.resolve(extensionsDirectory + '/' + id);
     let args = {
@@ -164,16 +169,25 @@ let analyzeExtension = async function (extensionsDirectory, id) {
 
     // Start the intercepting server
     let interceptor = new Interceptor(id);
+    let browser;
 
     try {
         interceptor.start();
-        const browser = await puppeteer.launch(args);
+        browser = await puppeteer.launch(args);
         const page = await browser.newPage();
+        page.on('dialog', async dialog => {
+            await dialog.dismiss();
+        });
+
         await delay(ANALYZE_INIT_DELAY);
         await page.goto(TEST_WEBSITE);
-        await delay(ANALYZE_TIMEOUT);
-        await browser.close();
+    } catch (ex) {
+        console.error("Error while running the browser: " + ex);
     } finally {
+        await delay(ANALYZE_TIMEOUT);
+        if (browser) {
+            await browser.close();
+        }
         interceptor.close();
     }
 
@@ -205,7 +219,9 @@ let analyzeExtensions = async function (extensionsDirectory, outputPath) {
         let id = path.basename(file, ".crx");
         if (id && id.indexOf(".") === -1) {
             let extensionInfo = await analyzeExtension(extensionsDirectory, id);
-            requests.push(extensionInfo);
+            if (extensionInfo) {
+                requests.push(extensionInfo);
+            }
         }
     }
 

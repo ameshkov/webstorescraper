@@ -81,7 +81,7 @@ if (command === "meta") {
         }
     }
 
-    db.fillExtensionsTables(extensionsMetaPath, extensionsDirectory, dbProperties);
+    db.fillExtensionsTables(extensionsMetaPath, extensionsDirectory, extensionsRequestPath, dbProperties);
 } else if (command === "analyse") {
     analyse(extensionsDirectory, extensionsRequestPath);
 } else {
