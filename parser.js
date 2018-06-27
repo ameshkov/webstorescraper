@@ -42,7 +42,8 @@ let parseCategory = async function (category) {
 
     page.on('response', async function (response) {
         try {
-            if (response.url.indexOf(itemRequestPath) === -1) {
+            let url = response.url();
+            if (url.indexOf(itemRequestPath) === -1) {
                 return;
             }
             let responseBody = await response.buffer();
