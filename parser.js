@@ -86,7 +86,9 @@ let parseCategory = async function (category) {
                 // Ignore, that's just timeout
                 break;
             }
-            await page.evaluate('window.scrollTo(0,document.body.scrollHeight)');
+
+            const realHeight = 'Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight)';
+            await page.evaluate(`window.scrollTo(0, ${realHeight});`);
         }
     } catch (ex) {
         console.error(ex);
