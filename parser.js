@@ -32,7 +32,7 @@ let parseCategory = async function (category) {
     // necessary for debian
     let args = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
     const browser = await puppeteer.launch(args);
-    let url = chromeStoreUrl + category;
+    let url = chromeStoreUrl + category + '?hl=en';
 
     // Open the category page
     const page = await browser.newPage();
