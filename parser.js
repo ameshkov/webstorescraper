@@ -20,7 +20,7 @@ const categories = [
     "13-sports"
 ];
 const searchTerms = [
-    // "adblock",
+    "adblock",
     "adguard",
     "ublock",
     "adblocker",
@@ -140,13 +140,13 @@ let parseUrl = async function (url, searchTerm) {
 let parse = async function (outputPath) {
 
     let extensions = [];
-    // for (let i = 0; i < categories.length; i++) {
-    //     let category = categories[i];
-    //     let url = chromeStoreUrl + category + '?hl=en';
-    //     let categoryExtensions = await parseUrl(url, category);
-    //     console.log("Retrieved %d extensions from %s", categoryExtensions.length, category);
-    //     extensions = extensions.concat(categoryExtensions);
-    // }
+    for (let i = 0; i < categories.length; i++) {
+        let category = categories[i];
+        let url = chromeStoreUrl + category + '?hl=en';
+        let categoryExtensions = await parseUrl(url, category);
+        console.log("Retrieved %d extensions from %s", categoryExtensions.length, category);
+        extensions = extensions.concat(categoryExtensions);
+    }
 
     for (let i = 0; i < searchTerms.length; i++) {
         let searchTerm = searchTerms[i];
