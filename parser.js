@@ -22,7 +22,7 @@ const itemRequestPath = "/webstore/ajax/item";
 const pageSize = 50;
 const maxLimit = 30000;
 const scrollStep = 1000;
-const scrollAttempts = 10;
+const scrollAttempts = 30;
 const testSelectorTimeout = 1000;
 const testSelectorFormat = ".webstore-test-wall-tile[index=\"%d\"]";
 
