@@ -21,8 +21,31 @@ const categories = [
 const itemRequestPath = "/webstore/ajax/item";
 const pageSize = 50;
 const maxLimit = 30000;
-const testSelectorTimeout = 10000;
+const scrollStep = 1000;
+const scrollAttempts = 10;
+const testSelectorTimeout = 1000;
 const testSelectorFormat = ".webstore-test-wall-tile[index=\"%d\"]";
+
+/**
+ * Waits for the next page with extensions
+ *
+ * @param {*} page puppeteer page instance
+ * @param {*} testSelector sleector we're waiting for
+ * @returns true if testSelector is found, false if not
+ */
+let waitForNextPage = async function (page, testSelector) {
+    for (let i = 0; i < scrollAttempts; i++) {
+        try {
+            // Scroll down to trigger next page load
+            await page.evaluate(`window.scrollBy(0, ${scrollStep});`);
+            await page.waitForSelector(testSelector, { timeout: testSelectorTimeout });
+            return true;
+        } catch (ex) {
+            // Ignore, that's just timeout
+        }
+    }
+    return false;
+}
 
 /**
  * Parses a given category
@@ -80,18 +103,14 @@ let parseCategory = async function (category) {
     try {
         for (let i = 0; i < maxLimit; i += pageSize) {
             let testSelector = util.format(testSelectorFormat, i + 1);
-            try {
-                await page.waitForSelector(testSelector, { timeout: testSelectorTimeout });
-                // wait for render
-                await delay(1000);
-            } catch (ex) {
-                // Ignore, that's just timeout
+            let found = await waitForNextPage(page, testSelector);
+
+            if (found) {
+                console.log(`Parsed ${i} extensions from ${category}`);
+            } else {
+                console.log('Next page not found');
                 break;
             }
-
-            // scroll down to trigger loading of the next batch of extensions
-            const realHeight = 'Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight)';
-            await page.evaluate(`window.scrollTo(0, ${realHeight});`);
         }
     } catch (ex) {
         console.error(ex);
