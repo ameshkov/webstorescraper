@@ -19,6 +19,7 @@ const categories = [
     "13-sports"
 ];
 const itemRequestPath = "/webstore/ajax/item";
+const pageSize = 50;
 const maxLimit = 30000;
 const testSelectorTimeout = 10000;
 const testSelectorFormat = ".webstore-test-wall-tile[index=\"%d\"]";
@@ -77,16 +78,18 @@ let parseCategory = async function (category) {
     });
 
     try {
-        for (let i = 0; i < maxLimit; i += 100) {
+        for (let i = 0; i < maxLimit; i += pageSize) {
             let testSelector = util.format(testSelectorFormat, i + 1);
             try {
                 await page.waitForSelector(testSelector, { timeout: testSelectorTimeout });
+                // wait for render
                 await delay(1000);
             } catch (ex) {
                 // Ignore, that's just timeout
                 break;
             }
 
+            // scroll down to trigger loading of the next batch of extensions
             const realHeight = 'Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight)';
             await page.evaluate(`window.scrollTo(0, ${realHeight});`);
         }

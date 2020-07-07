@@ -1,3 +1,24 @@
+## How to use
+
+* `yarn install`
+
+```
+Usage: node index.js command [limit] [dbProperties]
+
+command can be:
+meta - retrieves extensions meta data and saves to 'data/extensions.json'
+download - downloads all the extensions in 'data/extensions.json' to data/extensions/*
+analyse - analyse the downloaded extensions
+database - fills a postgresql database with parsed & downloaded data
+
+For the `download` command you can also pass an optional `limit` parameter.
+It controls the minimum downloads extension should have in order to be downloaded.
+Default value is 10000.
+
+For the `database` command you can also pass database properties
+dbProperties=host port database user password
+```
+
 ## Setup puppetteer on Debian
 
 ```
