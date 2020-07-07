@@ -4,6 +4,7 @@ const fs = require('fs');
 const delay = require('delay');
 
 const chromeStoreUrl = "https://chrome.google.com/webstore/category/ext/";
+const chromeStoreSearchUrl = "https://chrome.google.com/webstore/search/";
 const categories = [
     "22-accessibility",
     "10-blogging",
@@ -17,6 +18,18 @@ const categories = [
     "12-shopping",
     "1-communication",
     "13-sports"
+];
+const searchTerms = [
+    "adblock",
+    "adguard",
+    "ublock",
+    "adblocker",
+    "ad%20blocker",
+    "facebook",
+    "youtube",
+    "twitter",
+    "vpn",
+    "proxy"
 ];
 const itemRequestPath = "/webstore/ajax/item";
 const pageSize = 50;
@@ -50,15 +63,15 @@ let waitForNextPage = async function (page, testSelector) {
 /**
  * Parses a given category
  * 
- * @param category Category name
+ * @param url Search url
+ * @param searchTerm search term - for logging
  */
-let parseCategory = async function (category) {
+let parseUrl = async function (url, searchTerm) {
     // necessary for debian
     let args = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
     const browser = await puppeteer.launch(args);
-    let url = chromeStoreUrl + category + '?hl=en';
 
-    // Open the category page
+    // Open the search result page
     const page = await browser.newPage();
     await page.goto(url);
     await page.content();
@@ -106,7 +119,7 @@ let parseCategory = async function (category) {
             let found = await waitForNextPage(page, testSelector);
 
             if (found) {
-                console.log(`Parsed ${i} extensions from ${category}`);
+                console.log(`Parsed ${i} extensions from ${searchTerm}`);
             } else {
                 console.log('Next page not found');
                 break;
@@ -129,9 +142,27 @@ let parse = async function (outputPath) {
     let extensions = [];
     for (let i = 0; i < categories.length; i++) {
         let category = categories[i];
-        let categoryExtensions = await parseCategory(category);
+        let url = chromeStoreUrl + category + '?hl=en';
+        let categoryExtensions = await parseUrl(url, category);
         console.log("Retrieved %d extensions from %s", categoryExtensions.length, category);
         extensions = extensions.concat(categoryExtensions);
+    }
+
+    for (let i = 0; i < searchTerms.length; i++) {
+        let searchTerm = searchTerms[i];
+        let url = chromeStoreSearchUrl + searchTerm + '?_category=extensions&hl=en';
+        let foundExtensions = await parseUrl(url, searchTerm);
+        console.log("Retrieved %d extensions from %s", foundExtensions.length, searchTerm);
+
+        let added = 0;
+        for (let j = 0; j < foundExtensions.length; j++) {
+            const extension = foundExtensions[j];
+            if (!extensions.find((ex) => { ex.id === extension.id })) {
+                extensions.push(extension);
+                added += 1;
+            }
+        }
+        console.log("Added %d new extensions from %s", added, searchTerm);
     }
 
     console.log("Total number of extensions retrieved is %d", extensions.length);
