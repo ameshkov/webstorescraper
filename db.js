@@ -71,6 +71,12 @@ async function insertExtensionFiles(extension, extensionsDirectory, dbProperties
         return;
     }
 
+    const fileSizeMb = fs.statSync(filePath).size / 1024 / 1024 / 1024;
+    if (fileSizeMb > 50) {
+        consola.info(`Extension is too heavy: ${fileSizeMb}+ MB`);
+        return;
+    }
+
     // Connecting to the database
     const client = new Client(dbProperties);
     try {
