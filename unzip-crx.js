@@ -57,7 +57,7 @@ function crxToZip(arraybuffer) {
         // CRX3 - https://cs.chromium.org/chromium/src/components/crx_file/crx3.proto
         const crx3HeaderLength = calcLength(view[8], view[9], view[10], view[11]);
 
-        // 12 = Magic number (4), CRX format version (4), header length (4)
+        // 12 = Magic number (4), CRX header length
         zipStartOffset = 12 + crx3HeaderLength;
     }
 

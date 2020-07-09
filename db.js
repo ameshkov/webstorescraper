@@ -71,7 +71,7 @@ async function insertExtensionFiles(extension, extensionsDirectory, dbProperties
         return;
     }
 
-    const fileSizeMb = fs.statSync(filePath).size / 1024 / 1024 / 1024;
+    const fileSizeMb = fs.statSync(filePath).size / 1024 / 1024;
     if (fileSizeMb > 50) {
         consola.info(`Extension is too heavy: ${fileSizeMb}+ MB`);
         return;
@@ -158,6 +158,7 @@ async function fillExtensionsTables(extensionsMetaFilePath,
 
         for (let i = 0; i < extensions.length; i += 1) {
             const extension = extensions[i];
+
             // eslint-disable-next-line no-await-in-loop
             await insertExtensionData(extension, dbProperties);
             // eslint-disable-next-line no-await-in-loop
