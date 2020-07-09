@@ -83,14 +83,17 @@ async function insertExtensionFiles(extension, extensionsDirectory, dbProperties
         // go through all files
         for (let i = 0; i < files.length; i += 1) {
             const path = files[i];
-            const fileContents = fs.readFileSync(path).toString();
 
-            // eslint-disable-next-line no-await-in-loop
-            await client.query(insertFileSql, [
-                extension.id,
-                path,
-                fileContents,
-            ]);
+            if (!fs.lstatSync(path).isDirectory()) {
+                const fileContents = fs.readFileSync(path).toString();
+
+                // eslint-disable-next-line no-await-in-loop
+                await client.query(insertFileSql, [
+                    extension.id,
+                    path,
+                    fileContents,
+                ]);
+            }
         }
     } catch (ex) {
         consola.error(ex);
