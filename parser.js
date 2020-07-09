@@ -1,43 +1,43 @@
 const puppeteer = require('puppeteer');
 const util = require('util');
 const fs = require('fs');
-const delay = require('delay');
+const consola = require('consola');
 
-const chromeStoreUrl = "https://chrome.google.com/webstore/category/ext/";
-const chromeStoreSearchUrl = "https://chrome.google.com/webstore/search/";
+const chromeStoreUrl = 'https://chrome.google.com/webstore/category/ext/';
+const chromeStoreSearchUrl = 'https://chrome.google.com/webstore/search/';
 const categories = [
-    "22-accessibility",
-    "10-blogging",
-    "15-by-google",
-    "11-web-development",
-    "14-fun",
-    "6-news",
-    "28-photos",
-    "7-productivity",
-    "38-search-tools",
-    "12-shopping",
-    "1-communication",
-    "13-sports"
+    '22-accessibility',
+    '10-blogging',
+    '15-by-google',
+    '11-web-development',
+    '14-fun',
+    '6-news',
+    '28-photos',
+    '7-productivity',
+    '38-search-tools',
+    '12-shopping',
+    '1-communication',
+    '13-sports',
 ];
 const searchTerms = [
-    "adblock",
-    "adguard",
-    "ublock",
-    "adblocker",
-    "ad%20blocker",
-    "facebook",
-    "youtube",
-    "twitter",
-    "vpn",
-    "proxy"
+    'adblock',
+    'adguard',
+    'ublock',
+    'adblocker',
+    'ad%20blocker',
+    'facebook',
+    'youtube',
+    'twitter',
+    'vpn',
+    'proxy',
 ];
-const itemRequestPath = "/webstore/ajax/item";
+const itemRequestPath = '/webstore/ajax/item';
 const pageSize = 50;
 const maxLimit = 30000;
 const scrollStep = 1000;
 const scrollAttempts = 30;
 const testSelectorTimeout = 1000;
-const testSelectorFormat = ".webstore-test-wall-tile[index=\"%d\"]";
+const testSelectorFormat = '.webstore-test-wall-tile[index="%d"]';
 
 /**
  * Waits for the next page with extensions
@@ -46,11 +46,13 @@ const testSelectorFormat = ".webstore-test-wall-tile[index=\"%d\"]";
  * @param {*} testSelector sleector we're waiting for
  * @returns true if testSelector is found, false if not
  */
-let waitForNextPage = async function (page, testSelector) {
-    for (let i = 0; i < scrollAttempts; i++) {
+async function waitForNextPage(page, testSelector) {
+    for (let i = 0; i < scrollAttempts; i += 1) {
         try {
             // Scroll down to trigger next page load
+            // eslint-disable-next-line no-await-in-loop
             await page.evaluate(`window.scrollBy(0, ${scrollStep});`);
+            // eslint-disable-next-line no-await-in-loop
             await page.waitForSelector(testSelector, { timeout: testSelectorTimeout });
             return true;
         } catch (ex) {
@@ -62,111 +64,113 @@ let waitForNextPage = async function (page, testSelector) {
 
 /**
  * Parses a given category
- * 
- * @param url Search url
+ *
+ * @param searchUrl Search url
  * @param searchTerm search term - for logging
  */
-let parseUrl = async function (url, searchTerm) {
+async function parseUrl(searchUrl, searchTerm) {
     // necessary for debian
-    let args = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+    const args = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
     const browser = await puppeteer.launch(args);
 
     // Open the search result page
     const page = await browser.newPage();
-    await page.goto(url);
+    await page.goto(searchUrl);
     await page.content();
-    let extensions = [];
+    const extensions = [];
 
-    page.on('response', async function (response) {
+    page.on('response', async (response) => {
         try {
-            let url = response.url();
+            const url = response.url();
             if (url.indexOf(itemRequestPath) === -1) {
                 return;
             }
-            let responseBody = await response.buffer();
+            const responseBody = await response.buffer();
 
             // Remove the first )]}' characters to make a valid json
-            let jsonString = responseBody.toString().substring(4);
-            let json = JSON.parse(jsonString);
+            const jsonString = responseBody.toString().substring(4);
+            const json = JSON.parse(jsonString);
 
-            let items = json[0][1][1];
-            for (let i = 0; i < items.length; i++) {
-                let item = items[i];
-                let extensionData = {
+            const items = json[0][1][1];
+            for (let i = 0; i < items.length; i += 1) {
+                const item = items[i];
+                const extensionData = {
                     id: item[0],
                     name: item[1],
                     author: item[2],
                     description: item[6],
                     category: item[10],
-                    usersCount: parseInt(item[23].replace(/[^0-9]/g, '')),
+                    usersCount: parseInt(item[23].replace(/[^0-9]/g, ''), 10),
                     rating: item[12],
                     ratingsCount: item[22],
                     analyticsId: item[83],
                     website: item[81],
-                    inApp: item[30]
+                    inApp: item[30],
                 };
                 extensions.push(extensionData);
             }
         } catch (ex) {
-            console.warn("Error while parsing extension data");
-            console.warn(ex);
+            consola.warn('Error while parsing extension data');
+            consola.warn(ex);
         }
     });
 
     try {
         for (let i = 0; i < maxLimit; i += pageSize) {
-            let testSelector = util.format(testSelectorFormat, i + 1);
-            let found = await waitForNextPage(page, testSelector);
+            const testSelector = util.format(testSelectorFormat, i + 1);
+            // eslint-disable-next-line no-await-in-loop
+            const found = await waitForNextPage(page, testSelector);
 
             if (found) {
-                console.log(`Parsed ${i} extensions from ${searchTerm}`);
+                consola.info(`Parsed ${i} extensions from ${searchTerm}`);
             } else {
-                console.log('Next page not found');
+                consola.info('Next page not found');
                 break;
             }
         }
     } catch (ex) {
-        console.error(ex);
+        consola.error(ex);
     }
 
     await browser.close();
     return extensions;
-};
+}
 
 /**
  * Scrapes extensions meta-data and saves to the specified output file
  * @param {*} outputPath Path to the output file
  */
-let parse = async function (outputPath) {
-
+async function parse(outputPath) {
     let extensions = [];
-    for (let i = 0; i < categories.length; i++) {
-        let category = categories[i];
-        let url = chromeStoreUrl + category + '?hl=en';
-        let categoryExtensions = await parseUrl(url, category);
-        console.log("Retrieved %d extensions from %s", categoryExtensions.length, category);
+    for (let i = 0; i < categories.length; i += 1) {
+        const category = categories[i];
+        const url = `${chromeStoreUrl + category}?hl=en`;
+        // eslint-disable-next-line no-await-in-loop
+        const categoryExtensions = await parseUrl(url, category);
+        consola.info('Retrieved %d extensions from %s', categoryExtensions.length, category);
         extensions = extensions.concat(categoryExtensions);
     }
 
-    for (let i = 0; i < searchTerms.length; i++) {
-        let searchTerm = searchTerms[i];
-        let url = chromeStoreSearchUrl + searchTerm + '?_category=extensions&hl=en';
-        let foundExtensions = await parseUrl(url, searchTerm);
-        console.log("Retrieved %d extensions from %s", foundExtensions.length, searchTerm);
+    for (let i = 0; i < searchTerms.length; i += 1) {
+        const searchTerm = searchTerms[i];
+        const url = `${chromeStoreSearchUrl + searchTerm}?_category=extensions&hl=en`;
+        // eslint-disable-next-line no-await-in-loop
+        const foundExtensions = await parseUrl(url, searchTerm);
+        consola.info('Retrieved %d extensions from %s', foundExtensions.length, searchTerm);
 
         let added = 0;
-        for (let j = 0; j < foundExtensions.length; j++) {
+        for (let j = 0; j < foundExtensions.length; j += 1) {
             const extension = foundExtensions[j];
             if (!extensions.find((ex) => ex.id === extension.id)) {
                 extensions.push(extension);
                 added += 1;
             }
         }
-        console.log("Added %d new extensions from %s", added, searchTerm);
+        consola.info('Added %d new extensions from %s', added, searchTerm);
     }
 
-    console.log("Total number of extensions retrieved is %d", extensions.length);
+    consola.info('Total number of extensions retrieved is %d', extensions.length);
     fs.writeFileSync(outputPath, JSON.stringify(extensions, 0, 4));
-};
+}
 
 module.exports.parse = parse;

@@ -1,50 +1,51 @@
+// eslint-disable-next-line camelcase
 const child_process = require('child_process');
 const fs = require('fs');
+const consola = require('consola');
 
-const downloadUrlFormat = "https://clients2.google.com/service/update2/crx?response=redirect&prodversion=49.0&x=id%3D${id}%26installsource%3Dondemand%26uc";
-
+// eslint-disable-next-line no-template-curly-in-string
+const downloadUrlFormat = 'https://clients2.google.com/service/update2/crx?response=redirect&prodversion=49.0&x=id%3D${id}%26installsource%3Dondemand%26uc';
 
 /**
  * Downloads extension with the specified id.
- * 
+ *
  * @param {*} id Extension ID
  * @param {*} outputDirectory Output directory.
  */
-let download = function (id, outputDirectory) {
-
+function download(id, outputDirectory) {
     try {
-        let url = downloadUrlFormat.replace("${id}", id);
-        let filePath = outputDirectory + "/" + id + ".crx";
-        child_process.execFileSync('wget', ["-O", filePath, url]);
+        // eslint-disable-next-line no-template-curly-in-string
+        const url = downloadUrlFormat.replace('${id}', id);
+        const filePath = `${outputDirectory}/${id}.crx`;
+        child_process.execFileSync('wget', ['-O', filePath, url]);
     } catch (ex) {
-        console.error("Cannot download extension %s", id);
-        console.error(ex);
+        consola.error('Cannot download extension %s', id);
+        consola.error(ex);
     }
-};
+}
 
 /**
  * Downloads extensions files
- * 
+ *
  * @param extensionsMetaFilePath Path to the file with extensions metadata
  * @param outputDirectory Path to the directory where we should put the downloaded files
  * @param usersCountLimit Download only extensions with users count greater than this
  */
-let downloadExtensions = function (extensionsMetaFilePath, outputDirectory, usersCountLimit) {
-    console.log("Downloading extensions with users count greater than %d", usersCountLimit);
-    let extensions = JSON.parse(fs.readFileSync(extensionsMetaFilePath));
+function downloadExtensions(extensionsMetaFilePath, outputDirectory, usersCountLimit) {
+    consola.info('Downloading extensions with users count greater than %d', usersCountLimit);
+    const extensions = JSON.parse(fs.readFileSync(extensionsMetaFilePath));
     let downloadedCount = 0;
 
-    for (let i = 0; i < extensions.length; i++) {
-
-        let extension = extensions[i];
+    for (let i = 0; i < extensions.length; i += 1) {
+        const extension = extensions[i];
         if (extension.usersCount >= usersCountLimit) {
-            console.log("Downloading %s (%s)", extension.name, extension.id);
+            consola.info('Downloading %s (%s)', extension.name, extension.id);
             download(extension.id, outputDirectory);
-            downloadedCount++;
+            downloadedCount += 1;
         }
     }
 
-    console.log("Downloaded %d extensions", downloadedCount);
-};
+    consola.info('Downloaded %d extensions', downloadedCount);
+}
 
 module.exports.downloadExtensions = downloadExtensions;

@@ -1,4 +1,6 @@
-const express = require("express");
+const express = require('express');
+const consola = require('consola');
+
 const PORT = 3000;
 
 /**
@@ -7,10 +9,9 @@ const PORT = 3000;
  * we inject into every extension that is being analyzed.
  */
 class Interceptor {
-
     /**
      * Extension identifier
-     * 
+     *
      * @param {string} id extension ID
      */
     constructor(id) {
@@ -19,13 +20,13 @@ class Interceptor {
         this.requests = [];
 
         this.app.get('/intercept', (req, res) => {
-            let details = JSON.parse(req.query.details);
+            const details = JSON.parse(req.query.details);
             this.requests.push(details);
             res.sendStatus(200);
         });
 
-        this.app.use(function(req, res){
-            console.error("Error 404: " + req.url);
+        this.app.use((req, res) => {
+            consola.error(`Error 404: ${req.url}`);
             res.sendStatus(404);
         });
     }
@@ -42,7 +43,7 @@ class Interceptor {
      */
     start() {
         this.server = this.app.listen(PORT, () => {
-            console.log('Interception server is working on port ' + PORT);
+            consola.info(`Interception server is working on port ${PORT}`);
         });
     }
 
@@ -51,16 +52,15 @@ class Interceptor {
      */
     close() {
         if (this.server) {
-            console.log("Closing the interception server");
+            consola.info('Closing the interception server');
             this.server.close();
         }
     }
 }
 
-
 /**
- * Starts interception 
- * 
+ * Starts interception
+ *
  * @param {string} id extension ID
  * @returns an instance of an "Interceptor"
  */
