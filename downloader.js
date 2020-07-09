@@ -4,7 +4,7 @@ const fs = require('fs');
 const consola = require('consola');
 
 // eslint-disable-next-line no-template-curly-in-string
-const downloadUrlFormat = 'https://clients2.google.com/service/update2/crx?response=redirect&prodversion=49.0&x=id%3D${id}%26installsource%3Dondemand%26uc';
+const downloadUrlFormat = 'https://clients2.google.com/service/update2/crx?response=redirect&os=mac&arch=x64&os_arch=x86_64&nacl_arch=x86-64&prod=chromecrx&prodchannel=&prodversion=83.0.4103.106&lang=en-GB&acceptformat=crx3&x=id%3D${id}%26installsource%3Dondemand%26uc';
 
 /**
  * Downloads extension with the specified id.

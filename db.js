@@ -1,9 +1,9 @@
 const fs = require('fs');
-const zipper = require('zip-local');
 const consola = require('consola');
-
 // node-postgres uses the same environment variables as libpq to connect to a PostgreSQL server.
 const { Client } = require('pg');
+const glob = require('glob');
+const { unzipExtension, deleteUnpackedExtension } = require('./unzip-ext');
 
 const insertMetaSql = 'INSERT INTO extensions.extensions (id, name, author, description, category, usersCount, rating, ratingsCount, analyticsId, website, inApp) '
     + ' VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);';
@@ -76,22 +76,14 @@ async function insertExtensionFiles(extension, extensionsDirectory, dbProperties
     try {
         await client.connect();
 
-        // export in memory
-        const unzippedfs = zipper.sync.unzip(filePath).memory();
-        const files = unzippedfs.contents();
+        // unzip extension to a directory
+        const extDir = await unzipExtension(extensionsDirectory, extension.id);
+        const files = glob.sync(`${extDir}/**/*.{json,js,json,html,txt}`);
 
+        // go through all files
         for (let i = 0; i < files.length; i += 1) {
             const path = files[i];
-
-            // Insert only text/js/json files contents
-            if (!path.endsWith('.js')
-                && !path.endsWith('.json')
-                && !path.endsWith('.txt')) {
-                // eslint-disable-next-line no-continue
-                continue;
-            }
-
-            const fileContents = unzippedfs.read(path, 'buffer').toString();
+            const fileContents = fs.readFileSync(path).toString();
 
             // eslint-disable-next-line no-await-in-loop
             await client.query(insertFileSql, [
@@ -103,6 +95,7 @@ async function insertExtensionFiles(extension, extensionsDirectory, dbProperties
     } catch (ex) {
         consola.error(ex);
     } finally {
+        deleteUnpackedExtension(extensionsDirectory, extension.id);
         await client.end();
     }
 }

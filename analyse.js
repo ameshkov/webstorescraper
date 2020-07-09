@@ -3,7 +3,7 @@ const fs = require('fs');
 const delay = require('delay');
 const path = require('path');
 const consola = require('consola');
-const unzip = require('unzip-crx');
+const unzip = require('./unzip-crx');
 const { Interceptor } = require('./analyse_intercept');
 
 const ANALYSE_INTERCEPTOR = 'analyse_intercept_requests_bgscript.js';

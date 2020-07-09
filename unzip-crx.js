@@ -7,11 +7,6 @@ const path = require('path');
 const jszip = require('jszip');
 const mkdirp = require('mkdirp');
 const consola = require('consola');
-const promisify = require('yaku/lib/promisify');
-
-const writeFile = promisify(fs.writeFile);
-const readFile = promisify(fs.readFile);
-const mkdir = promisify(mkdirp);
 
 // Credits for the original function go to Rob--W
 // https://github.com/Rob--W/crxviewer/blob/master/src/lib/crx-to-zip.js
@@ -72,7 +67,7 @@ function crxToZip(arraybuffer) {
     return Uint8Array.from(buffer).buffer;
 }
 
-function unzip(crxFilePath, destination) {
+async function unzip(crxFilePath, destination) {
     const filePath = path.resolve(crxFilePath);
     const extname = path.extname(crxFilePath);
     const basename = path.basename(crxFilePath, extname);
@@ -80,22 +75,27 @@ function unzip(crxFilePath, destination) {
 
     // eslint-disable-next-line no-param-reassign
     destination = destination || path.resolve(dirname, basename);
-    return readFile(filePath)
-        .then((buf) => jszip.loadAsync(crxToZip(buf)))
-        .then((zip) => {
-            const zipFileKeys = Object.keys(zip.files);
 
-            return Promise.all(zipFileKeys.map((filename) => {
-                const isFile = !zip.files[filename].dir;
-                const fullPath = path.join(destination, filename);
-                const directory = (isFile && path.dirname(fullPath)) || fullPath;
-                const content = zip.files[filename].async('nodebuffer');
+    const buf = fs.readFileSync(filePath);
+    const zipBuf = crxToZip(buf);
+    const zip = await jszip.loadAsync(zipBuf);
+    const zipFileKeys = Object.keys(zip.files);
 
-                return mkdir(directory)
-                    .then(() => (isFile ? content : false))
-                    .then((data) => (data ? writeFile(fullPath, data) : true));
-            }));
-        });
+    for (let i = 0; i < zipFileKeys.length; i += 1) {
+        const filename = zipFileKeys[i];
+        const isFile = !zip.files[filename].dir;
+        const fullPath = path.join(destination, filename);
+        const directory = (isFile && path.dirname(fullPath)) || fullPath;
+        // eslint-disable-next-line no-await-in-loop
+        const content = await zip.files[filename].async('nodebuffer');
+
+        // eslint-disable-next-line no-await-in-loop
+        await mkdirp(directory);
+
+        if (isFile) {
+            fs.writeFileSync(fullPath, content);
+        }
+    }
 }
 
 module.exports = unzip;
