@@ -19,6 +19,10 @@ For the `database` command you can also pass database properties
 dbProperties=host port database user password
 ```
 
+* Parse meta: `node index.js meta > log.txt &`
+* Download extensions with 10k+ users: `node index.js download 10000 > log.txt &`
+* Database: `eval $(cat .env) node index.js database & > log.txt`
+
 ## Setup puppetteer on Debian
 
 ```
