@@ -1,6 +1,10 @@
-## How to use
+## How to install
 
-* `yarn install`
+* install nodejs
+* clone the repository
+* in `webstorescraper/` run `yarn install`
+
+## How to use
 
 ```
 Usage: node index.js command [limit] [dbProperties]
@@ -23,7 +27,7 @@ dbProperties=host port database user password
 * Download extensions with 10k+ users: `node index.js download 10000 > log.txt &`
 * Database: `eval $(cat .env) node index.js database & > log.txt`
 
-## Setup puppetteer on Debian
+## Setup puppeteer on Debian
 
 ```
 apt-get install -y wget
