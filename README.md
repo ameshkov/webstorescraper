@@ -1,6 +1,10 @@
-## How to use
+## How to install
 
-* `yarn install`
+* install nodejs
+* clone the repository
+* in `webstorescraper/` run `yarn install`
+
+## How to use
 
 ```
 Usage: node index.js command [limit] [dbProperties]
